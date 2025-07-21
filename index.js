@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const moodButtons = document.querySelectorAll('.mood-btn');
+    const countrySelect = document.getElementById('country-select');
     const tracksContainer = document.getElementById('tracks-container');
     const resultsTitle = document.getElementById('results-title');
     const loader = document.getElementById('loader');
@@ -7,11 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mood to search term mapping
     const moodMap = {
-        happy: 'happy OR upbeat OR joyful',
-        sad: 'sad OR melancholy OR emotional',
-        energetic: 'energetic OR workout OR dance',
-        calm: 'calm OR relaxing OR meditation',
-        romantic: 'romantic OR love OR slow'
+        happy: 'happy',
+        sad: 'sad',
+        energetic: 'dance',
+        calm: 'meditation',
+        romantic: 'love'
     };
     
     // Mood to display title mapping
@@ -23,29 +24,64 @@ document.addEventListener('DOMContentLoaded', function() {
         romantic: 'Romantic Songs'
     };
     
+    // Country to display name mapping
+    const countryNameMap = {
+        us: 'United States',
+        gb: 'United Kingdom',
+        jp: 'Japan',
+        in: 'India',
+        br: 'Brazil',
+        fr: 'France',
+        de: 'Germany',
+        kr: 'South Korea',
+        ng: 'Nigeria',
+        mx: 'Mexico'
+    };
+    
     // Add event listeners to mood buttons
     moodButtons.forEach(button => {
         button.addEventListener('click', function() {
             const mood = this.getAttribute('data-mood');
-            searchTracksByMood(mood);
+            const country = countrySelect.value;
+            searchTracksByMoodAndCountry(mood, country);
         });
     });
     
-    // Function to search tracks based on mood
-    function searchTracksByMood(mood) {
+    // Add event listener to country dropdown
+    countrySelect.addEventListener('change', function() {
+        // When country changes, re-search with the last selected mood
+        const activeMoodBtn = document.querySelector('.mood-btn.active');
+        if (activeMoodBtn) {
+            const mood = activeMoodBtn.getAttribute('data-mood');
+            const country = countrySelect.value;
+            searchTracksByMoodAndCountry(mood, country);
+        }
+    });
+    
+    // Function to search tracks based on mood and country
+    function searchTracksByMoodAndCountry(mood, country) {
         const searchTerm = moodMap[mood];
-        resultsTitle.textContent = moodTitleMap[mood];
+        const countryName = countryNameMap[country];
+        resultsTitle.textContent = `${moodTitleMap[mood]} in ${countryName}`;
         
         // Show loader and clear previous results
         loader.style.display = 'flex';
         tracksContainer.innerHTML = '';
         
-        // Use Deezer API to search for tracks
-        fetch(`https://cors-anywhere.herokuapp.com/https://api.deezer.com/search?q=${encodeURIComponent(searchTerm)}&limit=12`)
+        // Mark active mood button
+        moodButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.mood-btn[data-mood="${mood}"]`).classList.add('active');
+        
+        // Use iTunes API to search for tracks with country parameter
+        fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=12&country=${country}`)
             .then(response => response.json())
             .then(data => {
                 loader.style.display = 'none';
-                displayTracks(data.data);
+                if (data.results && data.results.length > 0) {
+                    displayTracks(data.results, country);
+                } else {
+                    tracksContainer.innerHTML = '<p>No tracks found for this mood/country combination. Try another selection.</p>';
+                }
             })
             .catch(error => {
                 loader.style.display = 'none';
@@ -55,29 +91,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to display tracks
-    function displayTracks(tracks) {
-        if (!tracks || tracks.length === 0) {
-            tracksContainer.innerHTML = '<p>No tracks found for this mood. Try another mood!</p>';
-            return;
-        }
-        
+    function displayTracks(tracks, country) {
         tracks.forEach(track => {
             const trackElement = document.createElement('div');
             trackElement.className = 'track';
             
-            // Use the album cover (medium size), fallback to artist picture if not available
-            let coverImage = track.album?.cover_medium || track.artist?.picture_medium || 'https://via.placeholder.com/250';
+            // Use the album artwork (100x100 size)
+            let coverImage = track.artworkUrl100.replace('100x100', '250x250');
+            
+            // Format price with local currency
+            const price = track.trackPrice ? 
+                new Intl.NumberFormat(getLocaleFromCountry(country), {
+                    style: 'currency',
+                    currency: track.currency
+                }).format(track.trackPrice) : 'Price not available';
             
             trackElement.innerHTML = `
-                <img src="${coverImage}" alt="${track.title}" class="track-img">
-                <div class="track-title">${track.title}</div>
-                <div class="track-artist">${track.artist.name}</div>
+                <img src="${coverImage}" alt="${track.trackName}" class="track-img">
+                <div class="track-title">${track.trackName}</div>
+                <div class="track-artist">${track.artistName}</div>
+                <div class="track-price">${price}</div>
                 <div class="track-controls">
-                    <button class="play-btn" data-preview="${track.preview}">
+                    <button class="play-btn" data-preview="${track.previewUrl}">
                         <i class="fas fa-play"></i>
                     </button>
-                    <a href="${track.link}" target="_blank" class="deezer-link">
-                        <i class="fab fa-deezer"></i> Deezer
+                    <a href="${track.trackViewUrl}" target="_blank" class="itunes-link">
+                        <i class="fab fa-apple"></i> iTunes
                     </a>
                 </div>
             `;
@@ -115,5 +154,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.innerHTML = '<i class="fas fa-play"></i>';
             });
         });
+    }
+    
+    // Helper function to get locale from country code
+    function getLocaleFromCountry(countryCode) {
+        const localeMap = {
+            us: 'en-US',
+            gb: 'en-GB',
+            jp: 'ja-JP',
+            in: 'en-IN',
+            br: 'pt-BR',
+            fr: 'fr-FR',
+            de: 'de-DE',
+            kr: 'ko-KR',
+            ng: 'en-NG',
+            mx: 'es-MX'
+        };
+        return localeMap[countryCode] || 'en-US';
     }
 });
