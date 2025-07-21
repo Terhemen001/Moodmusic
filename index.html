@@ -11,27 +11,45 @@
     <div class="container">
         <header>
             <h1>MoodTunes</h1>
-            <p>Discover music that matches your current mood</p>
+            <p>Discover music that matches your current mood and region</p>
         </header>
 
-        <div class="mood-selector">
-            <h2>How are you feeling today?</h2>
-            <div class="mood-buttons">
-                <button class="mood-btn" data-mood="happy">
-                    <i class="fas fa-smile"></i> Happy
-                </button>
-                <button class="mood-btn" data-mood="sad">
-                    <i class="fas fa-sad-tear"></i> Sad
-                </button>
-                <button class="mood-btn" data-mood="energetic">
-                    <i class="fas fa-bolt"></i> Energetic
-                </button>
-                <button class="mood-btn" data-mood="calm">
-                    <i class="fas fa-spa"></i> Calm
-                </button>
-                <button class="mood-btn" data-mood="romantic">
-                    <i class="fas fa-heart"></i> Romantic
-                </button>
+        <div class="controls">
+            <div class="mood-selector">
+                <h2>How are you feeling today?</h2>
+                <div class="mood-buttons">
+                    <button class="mood-btn" data-mood="happy">
+                        <i class="fas fa-smile"></i> Happy
+                    </button>
+                    <button class="mood-btn" data-mood="sad">
+                        <i class="fas fa-sad-tear"></i> Sad
+                    </button>
+                    <button class="mood-btn" data-mood="energetic">
+                        <i class="fas fa-bolt"></i> Energetic
+                    </button>
+                    <button class="mood-btn" data-mood="calm">
+                        <i class="fas fa-spa"></i> Calm
+                    </button>
+                    <button class="mood-btn" data-mood="romantic">
+                        <i class="fas fa-heart"></i> Romantic
+                    </button>
+                </div>
+            </div>
+
+            <div class="country-selector">
+                <h2>Select Country</h2>
+                <select id="country-select" class="country-dropdown">
+                    <option value="us">United States</option>
+                    <option value="gb">United Kingdom</option>
+                    <option value="jp">Japan</option>
+                    <option value="in">India</option>
+                    <option value="br">Brazil</option>
+                    <option value="fr">France</option>
+                    <option value="de">Germany</option>
+                    <option value="kr">South Korea</option>
+                    <option value="ng">Nigeria</option>
+                    <option value="mx">Mexico</option>
+                </select>
             </div>
         </div>
 
@@ -48,4 +66,4 @@
 
     <script src="index.js"></script>
 </body>
-</html>
+ </html>
