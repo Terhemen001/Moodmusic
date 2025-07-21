@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodTunes - Music for Your Mood</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MoodTunes</h1>
+            <p>Discover music that matches your current mood</p>
+        </header>
+
+        <div class="mood-selector">
+            <h2>How are you feeling today?</h2>
+            <div class="mood-buttons">
+                <button class="mood-btn" data-mood="happy">
+                    <i class="fas fa-smile"></i> Happy
+                </button>
+                <button class="mood-btn" data-mood="sad">
+                    <i class="fas fa-sad-tear"></i> Sad
+                </button>
+                <button class="mood-btn" data-mood="energetic">
+                    <i class="fas fa-bolt"></i> Energetic
+                </button>
+                <button class="mood-btn" data-mood="calm">
+                    <i class="fas fa-spa"></i> Calm
+                </button>
+                <button class="mood-btn" data-mood="romantic">
+                    <i class="fas fa-heart"></i> Romantic
+                </button>
+            </div>
+        </div>
+
+        <div class="results">
+            <h2 id="results-title">Your Mood Matches</h2>
+            <div class="loader" id="loader" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+            <div class="tracks" id="tracks-container"></div>
+        </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
