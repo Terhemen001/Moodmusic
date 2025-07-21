@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mood to search term mapping
     const moodMap = {
-        happy: 'happy OR upbeat OR joyful',
-        sad: 'sad OR melancholy OR emotional',
-        energetic: 'energetic OR workout OR dance',
-        calm: 'calm OR relaxing OR meditation',
-        romantic: 'romantic OR love OR slow'
+        happy: 'happy',
+        sad: 'sad',
+        energetic: 'dance',
+        calm: 'meditation',
+        romantic: 'love'
     };
     
     // Mood to display title mapping
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Function to search tracks based on mood
+    // Function to search tracks based on mood using iTunes API
     function searchTracksByMood(mood) {
         const searchTerm = moodMap[mood];
         resultsTitle.textContent = moodTitleMap[mood];
@@ -40,12 +40,16 @@ document.addEventListener('DOMContentLoaded', function() {
         loader.style.display = 'flex';
         tracksContainer.innerHTML = '';
         
-        // Use Deezer API to search for tracks
-        fetch(`https://api.deezer.com/search?q=${encodeURIComponent(searchTerm)}&limit=12`)
+        // Use iTunes API to search for tracks
+        fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=12`)
             .then(response => response.json())
             .then(data => {
                 loader.style.display = 'none';
-                displayTracks(data.data);
+                if (data.results && data.results.length > 0) {
+                    displayTracks(data.results);
+                } else {
+                    tracksContainer.innerHTML = '<p>No tracks found for this mood. Try another mood!</p>';
+                }
             })
             .catch(error => {
                 loader.style.display = 'none';
@@ -56,28 +60,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to display tracks
     function displayTracks(tracks) {
-        if (!tracks || tracks.length === 0) {
-            tracksContainer.innerHTML = '<p>No tracks found for this mood. Try another mood!</p>';
-            return;
-        }
-        
         tracks.forEach(track => {
             const trackElement = document.createElement('div');
             trackElement.className = 'track';
             
-            // Use the album cover (medium size), fallback to artist picture if not available
-            let coverImage = track.album?.cover_medium || track.artist?.picture_medium || 'https://via.placeholder.com/250';
+            // Use the album artwork (100x100 size)
+            let coverImage = track.artworkUrl100.replace('100x100', '250x250');
             
             trackElement.innerHTML = `
-                <img src="${coverImage}" alt="${track.title}" class="track-img">
-                <div class="track-title">${track.title}</div>
-                <div class="track-artist">${track.artist.name}</div>
+                <img src="${coverImage}" alt="${track.trackName}" class="track-img">
+                <div class="track-title">${track.trackName}</div>
+                <div class="track-artist">${track.artistName}</div>
                 <div class="track-controls">
-                    <button class="play-btn" data-preview="${track.preview}">
+                    <button class="play-btn" data-preview="${track.previewUrl}">
                         <i class="fas fa-play"></i>
                     </button>
-                    <a href="${track.link}" target="_blank" class="deezer-link">
-                        <i class="fab fa-deezer"></i> Deezer
+                    <a href="${track.trackViewUrl}" target="_blank" class="itunes-link">
+                        <i class="fab fa-apple"></i> iTunes
                     </a>
                 </div>
             `;
