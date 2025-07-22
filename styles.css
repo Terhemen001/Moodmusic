@@ -33,6 +33,21 @@ header p {
     font-size: 1.1rem;
 }
 
+/* Add to your CSS */
+.mood-btn {
+    pointer-events: auto !important; /* Override any disabling */
+    position: relative; /* Ensure clickable */
+    z-index: 1; /* Bring above other elements */
+}
+
+/* Disable any parent element that might intercept clicks */
+.container {
+    pointer-events: none;
+}
+.container > * {
+    pointer-events: auto;
+}
+
 .mood-selector {
     background-color: white;
     border-radius: 10px;
