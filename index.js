@@ -8,11 +8,72 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mood to search term mapping
     const moodMap = {
-        happy: 'happy',
-        sad: 'sad',
-        energetic: 'dance',
-        calm: 'meditation',
-        romantic: 'love'
+        happy: {
+        us: 'happy pop', // More specific for US
+        gb: 'happy britpop',
+        jp: 'happy j-pop',
+        in: 'happy bollywood',
+        br: 'happy sertanejo',
+        fr: 'happy french pop',
+        de: 'happy german pop',
+        kr: 'happy k-pop',
+        ng: 'happy afrobeats',
+        mx: 'happy banda'
+    },
+
+    sad: {
+        us: 'sad country',
+        gb: 'sad british indie',
+        jp: 'sad japanese ballad',
+        in: 'sad indian classical',
+        br: 'sad bossa nova',
+        fr: 'sad chanson',
+        de: 'sad dark folk',
+        kr: 'sad korean r&b',
+        ng: 'sad afro-soul',
+        mx: 'sad ranchera'
+    },
+
+       energetic: {
+         us: 'energetic rock n roll',
+         gb: 'energetic britrock',
+         jp: 'energetic j-rock',
+         in: 'energetic bollywood remix',
+         br: 'energetic samba',
+         fr: 'energetic french house',
+         de: 'energetic techno',
+         kr: 'energetic k-hip hop',
+         ng: 'energetic naija hip hop',
+         mx: 'energetic mexican rock'
+
+       },
+
+       calm:{
+         us: 'calm ambient',
+         gb: 'calm downtempo',
+         jp: 'calm japanese lofi',
+         in: 'calm indian flute',
+         br: 'calm bossa nova',
+         fr: 'calm french lounge',
+         de: 'calm krautrock',
+         kr: 'calm k-indie acoustic',
+         ng: 'calm yoruba meditation',
+         mx: 'calm mexican harp'
+       },
+
+       romantic: {
+          us: 'romantic r&b',
+          gb: 'romantic british soul',
+          jp: 'romantic japanese city pop',
+          in: 'romantic bollywood romantic',
+          br: 'romantic samba-canção',
+          fr: 'romantic zouk love',
+          de: 'romantic german pop ballad',
+          kr: 'romantic korean ballad',
+          ng: 'romantic naija soul',
+          mx: 'romantic bolero'
+       },
+           
     };
     
     // Mood to display title mapping
@@ -57,16 +118,70 @@ document.addEventListener('DOMContentLoaded', function() {
             searchTracksByMoodAndCountry(mood, country);
         }
     });
-    
-    // Function to search tracks based on mood and country
-    function searchTracksByMoodAndCountry(mood, country) {
-        const searchTerm = moodMap[mood];
-        const countryName = countryNameMap[country];
-        resultsTitle.textContent = `${moodTitleMap[mood]} in ${countryName}`;
+
+    //Country metadata search
+
+    function isTrackFromCountry(track, countryCode) {
+    const countryIndicators = {
+        us: ['american', 'usa', 'united states', 'motown', 'nashville', 'la rap'],
+     
+        gb: ['british', 'uk', 'england', 'london', 'manchester', 'scottish'],
+      
+        jp: ['japanese', 'japan', 'tokyo', 'osaka', 'j-pop', 'j-rock'],
+
+        in: ['indian', 'india', 'bollywood', 'mumbai', 'delhi', 'punjabi'],
+      
+        br: ['brazilian', 'brazil', 'rio', 'são paulo', 'baiana'],
         
+        fr: ['french', 'france', 'paris', 'lyon', 'toulouse'],
+        
+        de: ['german', 'germany', 'berlin', 'munich', 'hamburg'],
+        
+        kr: ['korean', 'korea', 'seoul', 'busan', 'k-pop'],
+        
+        ng:['nigerian', 'nigeria', 'lagos', 'afrobeats', 'naija'],
+        
+        mx: ['mexican', 'mexico', 'cdmx', 'monterrey', 'banda'],
+        
+    };
+    
+    return (
+        track.country === countryCode.toUpperCase() ||
+        countryIndicators[countryCode].some(term => 
+            track.primaryGenreName.toLowerCase().includes(term) ||
+            track.artistName.toLowerCase().includes(term)
+    );
+    }
+
+    //search
+    
+    function searchTracksByMoodAndCountry(mood, country) {
+    // Get country-specific term or fallback
+    const searchTerm = moodMap[mood]?.[country] || 
+                      `${moodMap[mood]._default} ${countryNameMap[country]}`;
+
+    fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&limit=12&country=${country}&entity=song`)
+        .then(response => response.json())
+        .then(data => {
+            // Secondary filtering by country metadata
+            const filteredTracks = data.results.filter(track => {
+                return (
+                    track.country === country.toUpperCase() || 
+                    track.primaryGenreName.toLowerCase().includes(country) ||
+                    track.artistName.toLowerCase().includes(countryNameMap[country].toLowerCase())
+                );
+            });
+            
+            displayTracks(filteredTracks.length ? filteredTracks : data.results.slice(0, 6), country);
+        })
+        .catch(/* error handling */);
+    }
         // Show loader and clear previous results
         loader.style.display = 'flex';
-        tracksContainer.innerHTML = '';
+        tracif (filteredTracks.length < 5) {
+    // Try a broader search if few results
+    return fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(moodMap[mood]._default)}&country=${country}`);
+        }ksContainer.innerHTML = '';
         
         // Mark active mood button
         moodButtons.forEach(btn => btn.classList.remove('active'));
