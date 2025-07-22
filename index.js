@@ -6,74 +6,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const loader = document.getElementById('loader');
     const audioPlayer = document.getElementById('audio-player');
     
-    // Mood to search term mapping
+    // Mood to search term mapping with _default fallback
     const moodMap = {
         happy: {
-        us: 'happy pop', // More specific for US
-        gb: 'happy britpop',
-        jp: 'happy j-pop',
-        in: 'happy bollywood',
-        br: 'happy sertanejo',
-        fr: 'happy french pop',
-        de: 'happy german pop',
-        kr: 'happy k-pop',
-        ng: 'happy afrobeats',
-        mx: 'happy banda'
-    },
-
-    sad: {
-        us: 'sad country',
-        gb: 'sad british indie',
-        jp: 'sad japanese ballad',
-        in: 'sad indian classical',
-        br: 'sad bossa nova',
-        fr: 'sad chanson',
-        de: 'sad dark folk',
-        kr: 'sad korean r&b',
-        ng: 'sad afro-soul',
-        mx: 'sad ranchera'
-    },
-
-       energetic: {
-         us: 'energetic rock n roll',
-         gb: 'energetic britrock',
-         jp: 'energetic j-rock',
-         in: 'energetic bollywood remix',
-         br: 'energetic samba',
-         fr: 'energetic french house',
-         de: 'energetic techno',
-         kr: 'energetic k-hip hop',
-         ng: 'energetic naija hip hop',
-         mx: 'energetic mexican rock'
-
-       },
-
-       calm:{
-         us: 'calm ambient',
-         gb: 'calm downtempo',
-         jp: 'calm japanese lofi',
-         in: 'calm indian flute',
-         br: 'calm bossa nova',
-         fr: 'calm french lounge',
-         de: 'calm krautrock',
-         kr: 'calm k-indie acoustic',
-         ng: 'calm yoruba meditation',
-         mx: 'calm mexican harp'
-       },
-
-       romantic: {
-          us: 'romantic r&b',
-          gb: 'romantic british soul',
-          jp: 'romantic japanese city pop',
-          in: 'romantic bollywood romantic',
-          br: 'romantic samba-canção',
-          fr: 'romantic zouk love',
-          de: 'romantic german pop ballad',
-          kr: 'romantic korean ballad',
-          ng: 'romantic naija soul',
-          mx: 'romantic bolero'
-       },
-           
+            us: 'happy pop',
+            gb: 'happy britpop',
+            jp: 'happy j-pop',
+            in: 'happy bollywood',
+            br: 'happy sertanejo',
+            fr: 'happy french pop',
+            de: 'happy german pop',
+            kr: 'happy k-pop',
+            ng: 'happy afrobeats',
+            mx: 'happy banda',
+            _default: 'happy'
+        },
+        sad: {
+            us: 'sad country',
+            gb: 'sad british indie',
+            jp: 'sad japanese ballad',
+            in: 'sad indian classical',
+            br: 'sad bossa nova',
+            fr: 'sad chanson',
+            de: 'sad dark folk',
+            kr: 'sad korean r&b',
+            ng: 'sad afro-soul',
+            mx: 'sad ranchera',
+            _default: 'sad'
+        },
+        energetic: {
+            us: 'energetic rock n roll',
+            gb: 'energetic britrock',
+            jp: 'energetic j-rock',
+            in: 'energetic bollywood remix',
+            br: 'energetic samba',
+            fr: 'energetic french house',
+            de: 'energetic techno',
+            kr: 'energetic k-hip hop',
+            ng: 'energetic naija hip hop',
+            mx: 'energetic mexican rock',
+            _default: 'energetic'
+        },
+        calm: {
+            us: 'calm ambient',
+            gb: 'calm downtempo',
+            jp: 'calm japanese lofi',
+            in: 'calm indian flute',
+            br: 'calm bossa nova',
+            fr: 'calm french lounge',
+            de: 'calm krautrock',
+            kr: 'calm k-indie acoustic',
+            ng: 'calm yoruba meditation',
+            mx: 'calm mexican harp',
+            _default: 'calm'
+        },
+        romantic: {
+            us: 'romantic r&b',
+            gb: 'romantic british soul',
+            jp: 'romantic japanese city pop',
+            in: 'romantic bollywood romantic',
+            br: 'romantic samba-canção',
+            fr: 'romantic zouk love',
+            de: 'romantic german pop ballad',
+            kr: 'romantic korean ballad',
+            ng: 'romantic naija soul',
+            mx: 'romantic bolero',
+            _default: 'romantic'
+        }
     };
     
     // Mood to display title mapping
@@ -110,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add event listener to country dropdown
     countrySelect.addEventListener('change', function() {
-        // When country changes, re-search with the last selected mood
         const activeMoodBtn = document.querySelector('.mood-btn.active');
         if (activeMoodBtn) {
             const mood = activeMoodBtn.getAttribute('data-mood');
@@ -119,81 +117,64 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    //Country metadata search
-
+    // Country metadata search
     function isTrackFromCountry(track, countryCode) {
-    const countryIndicators = {
-        us: ['american', 'usa', 'united states', 'motown', 'nashville', 'la rap'],
-     
-        gb: ['british', 'uk', 'england', 'london', 'manchester', 'scottish'],
-      
-        jp: ['japanese', 'japan', 'tokyo', 'osaka', 'j-pop', 'j-rock'],
-
-        in: ['indian', 'india', 'bollywood', 'mumbai', 'delhi', 'punjabi'],
-      
-        br: ['brazilian', 'brazil', 'rio', 'são paulo', 'baiana'],
+        const countryIndicators = {
+            us: ['american', 'usa', 'united states', 'motown', 'nashville', 'la rap'],
+            gb: ['british', 'uk', 'england', 'london', 'manchester', 'scottish'],
+            jp: ['japanese', 'japan', 'tokyo', 'osaka', 'j-pop', 'j-rock'],
+            in: ['indian', 'india', 'bollywood', 'mumbai', 'delhi', 'punjabi'],
+            br: ['brazilian', 'brazil', 'rio', 'são paulo', 'baiana'],
+            fr: ['french', 'france', 'paris', 'lyon', 'toulouse'],
+            de: ['german', 'germany', 'berlin', 'munich', 'hamburg'],
+            kr: ['korean', 'korea', 'seoul', 'busan', 'k-pop'],
+            ng: ['nigerian', 'nigeria', 'lagos', 'afrobeats', 'naija'],
+            mx: ['mexican', 'mexico', 'cdmx', 'monterrey', 'banda']
+        };
         
-        fr: ['french', 'france', 'paris', 'lyon', 'toulouse'],
-        
-        de: ['german', 'germany', 'berlin', 'munich', 'hamburg'],
-        
-        kr: ['korean', 'korea', 'seoul', 'busan', 'k-pop'],
-        
-        ng:['nigerian', 'nigeria', 'lagos', 'afrobeats', 'naija'],
-        
-        mx: ['mexican', 'mexico', 'cdmx', 'monterrey', 'banda'],
-        
-    };
-    
-    return (
-        track.country === countryCode.toUpperCase() ||
-        countryIndicators[countryCode].some(term => 
-            track.primaryGenreName.toLowerCase().includes(term) ||
-            track.artistName.toLowerCase().includes(term)
-    );
+        const indicators = countryIndicators[countryCode] || [];
+        return (
+            track.country === countryCode.toUpperCase() ||
+            indicators.some(term => 
+                (track.primaryGenreName?.toLowerCase().includes(term) ||
+                track.artistName?.toLowerCase().includes(term))
+            )
+        );
     }
 
-    //search
-    
+    // Search function
     function searchTracksByMoodAndCountry(mood, country) {
-    // Get country-specific term or fallback
-    const searchTerm = moodMap[mood]?.[country] || 
-                      `${moodMap[mood]._default} ${countryNameMap[country]}`;
-
-    fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&limit=12&country=${country}&entity=song`)
-        .then(response => response.json())
-        .then(data => {
-            // Secondary filtering by country metadata
-            const filteredTracks = data.results.filter(track => {
-                return (
-                    track.country === country.toUpperCase() || 
-                    track.primaryGenreName.toLowerCase().includes(country) ||
-                    track.artistName.toLowerCase().includes(countryNameMap[country].toLowerCase())
-                );
-            });
-            
-            displayTracks(filteredTracks.length ? filteredTracks : data.results.slice(0, 6), country);
-        })
-        .catch(/* error handling */);
-    }
+        // Get country-specific term or fallback
+        const searchTerm = moodMap[mood]?.[country] || 
+                         `${moodMap[mood]._default} ${countryNameMap[country]}`;
+        
         // Show loader and clear previous results
         loader.style.display = 'flex';
-        tracif (filteredTracks.length < 5) {
-    // Try a broader search if few results
-    return fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(moodMap[mood]._default)}&country=${country}`);
-        }ksContainer.innerHTML = '';
+        tracksContainer.innerHTML = '';
         
         // Mark active mood button
         moodButtons.forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.mood-btn[data-mood="${mood}"]`).classList.add('active');
+        document.querySelector(`.mood-btn[data-mood="${mood}"]`)?.classList.add('active');
         
-        // Use iTunes API to search for tracks with country parameter
         fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=music&entity=song&limit=12&country=${country}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then(data => {
                 loader.style.display = 'none';
                 if (data.results && data.results.length > 0) {
-                    displayTracks(data.results, country);
+                    // Apply country filtering
+                    const filteredTracks = data.results.filter(track => 
+                        isTrackFromCountry(track, country)
+                    );
+                    
+                    if (filteredTracks.length < 5) {
+                        // Fallback to less strict filtering if few results
+                        displayTracks(data.results.slice(0, 6), country);
+                    } else {
+                        displayTracks(filteredTracks, country);
+                    }
                 } else {
                     tracksContainer.innerHTML = '<p>No tracks found for this mood/country combination. Try another selection.</p>';
                 }
@@ -207,12 +188,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to display tracks
     function displayTracks(tracks, country) {
+        // Clear previous tracks
+        tracksContainer.innerHTML = '';
+        
+        // Country flag emojis
+        const countryFlags = {
+            us: '🇺🇸', gb: '🇬🇧', jp: '🇯🇵', 
+            in: '🇮🇳', br: '🇧🇷', fr: '🇫🇷',
+            de: '🇩🇪', kr: '🇰🇷', ng: '🇳🇬', mx: '🇲🇽'
+        };
+        
         tracks.forEach(track => {
             const trackElement = document.createElement('div');
             trackElement.className = 'track';
             
-            // Use the album artwork (100x100 size)
-            let coverImage = track.artworkUrl100.replace('100x100', '250x250');
+            // Use larger album artwork when available
+            let coverImage = track.artworkUrl100?.replace('100x100', '250x250') || 'https://via.placeholder.com/250';
             
             // Format price with local currency
             const price = track.trackPrice ? 
@@ -222,12 +213,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).format(track.trackPrice) : 'Price not available';
             
             trackElement.innerHTML = `
+                <div class="country-flag">${countryFlags[country] || ''}</div>
                 <img src="${coverImage}" alt="${track.trackName}" class="track-img">
                 <div class="track-title">${track.trackName}</div>
                 <div class="track-artist">${track.artistName}</div>
                 <div class="track-price">${price}</div>
                 <div class="track-controls">
-                    <button class="play-btn" data-preview="${track.previewUrl}">
+                    <button class="play-btn" data-preview="${track.previewUrl || ''}">
                         <i class="fas fa-play"></i>
                     </button>
                     <a href="${track.trackViewUrl}" target="_blank" class="itunes-link">
@@ -243,22 +235,22 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.play-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const previewUrl = this.getAttribute('data-preview');
-                if (previewUrl) {
-                    if (audioPlayer.src === previewUrl && !audioPlayer.paused) {
-                        audioPlayer.pause();
-                        this.innerHTML = '<i class="fas fa-play"></i>';
-                    } else {
-                        audioPlayer.src = previewUrl;
-                        audioPlayer.play();
-                        this.innerHTML = '<i class="fas fa-pause"></i>';
-                        
-                        // Reset other buttons
-                        document.querySelectorAll('.play-btn').forEach(btn => {
-                            if (btn !== this) {
-                                btn.innerHTML = '<i class="fas fa-play"></i>';
-                            }
-                        });
-                    }
+                if (!previewUrl) return;
+                
+                if (audioPlayer.src === previewUrl && !audioPlayer.paused) {
+                    audioPlayer.pause();
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                } else {
+                    audioPlayer.src = previewUrl;
+                    audioPlayer.play()
+                        .then(() => {
+                            this.innerHTML = '<i class="fas fa-pause"></i>';
+                            // Reset other buttons
+                            document.querySelectorAll('.play-btn').forEach(btn => {
+                                if (btn !== this) btn.innerHTML = '<i class="fas fa-play"></i>';
+                            });
+                        })
+                        .catch(err => console.error('Playback failed:', err));
                 }
             });
         });
@@ -282,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fr: 'fr-FR',
             de: 'de-DE',
             kr: 'ko-KR',
-            ng: 'en-NG',
+            ng: 'en-US', // Changed from en-NG for better currency support
             mx: 'es-MX'
         };
         return localeMap[countryCode] || 'en-US';
